@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#050505" />
+  <title>Nexus Legal Billing</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Panel móvil</p>
+        <h1>Nexus Legal Billing</h1>
+        <p class="sub">Facturas · Cotizaciones · Emplazamientos · Cobros</p>
+      </div>
+      <button class="icon-btn" id="btnSettings" title="Configuración">⚙</button>
+    </header>
+
+    <nav class="tabs" aria-label="Navegación principal">
+      <button class="tab active" data-view="dashboard">Inicio</button>
+      <button class="tab" data-view="form">Nuevo</button>
+      <button class="tab" data-view="history">Historial</button>
+      <button class="tab" data-view="settings">Ajustes</button>
+    </nav>
+
+    <main>
+      <section class="view active" id="dashboard">
+        <div class="grid stats-grid">
+          <article class="card stat"><span>Documentos</span><strong id="statDocs">0</strong></article>
+          <article class="card stat"><span>Pendiente</span><strong id="statPending">$0.00</strong></article>
+          <article class="card stat"><span>Pagado</span><strong id="statPaid">$0.00</strong></article>
+        </div>
+
+        <div class="card hero-card">
+          <h2>Operación lista</h2>
+          <p>Crea documentos profesionales, genera PDF limpio para cliente y guarda todo localmente.</p>
+          <div class="actions two">
+            <button class="primary" data-jump="form">+ Nuevo documento</button>
+            <button class="ghost" data-jump="history">Ver historial</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="form">
+        <form id="docForm" class="card form-card">
+          <div class="section-title">
+            <h2>Nuevo documento</h2>
+            <button type="button" class="ghost tiny" id="btnReset">Limpiar</button>
+          </div>
+
+          <div class="field-grid">
+            <label>Tipo
+              <select id="docType" required>
+                <option value="Factura">Factura</option>
+                <option value="Cotización">Cotización</option>
+                <option value="Emplazamiento">Emplazamiento</option>
+                <option value="Cobro de dinero">Cobro de dinero</option>
+              </select>
+            </label>
+            <label>Número
+              <input id="docNumber" required />
+            </label>
+            <label>Fecha
+              <input id="docDate" type="date" required />
+            </label>
+            <label>Estatus
+              <select id="status">
+                <option value="Pendiente">Pendiente</option>
+                <option value="Pagado">Pagado</option>
+                <option value="Enviado">Enviado</option>
+                <option value="Cancelado">Cancelado</option>
+              </select>
+            </label>
+          </div>
+
+          <h3>Cliente / parte</h3>
+          <div class="field-grid">
+            <label>Nombre
+              <input id="clientName" placeholder="Nombre del cliente" required />
+            </label>
+            <label>Teléfono
+              <input id="clientPhone" placeholder="787-000-0000" />
+            </label>
+            <label>Email
+              <input id="clientEmail" type="email" placeholder="cliente@email.com" />
+            </label>
+            <label>Dirección
+              <input id="clientAddress" placeholder="Dirección física/postal" />
+            </label>
+          </div>
+
+          <h3>Detalle legal / servicio</h3>
+          <div class="field-grid">
+            <label>Núm. de caso / referencia
+              <input id="caseNumber" placeholder="Opcional" />
+            </label>
+            <label>Tribunal / agencia
+              <input id="court" placeholder="Opcional" />
+            </label>
+          </div>
+
+          <div class="items-head">
+            <h3>Conceptos</h3>
+            <button type="button" class="ghost tiny" id="addItem">+ Ítem</button>
+          </div>
+          <div id="items"></div>
+
+          <label>Notas / términos
+            <textarea id="notes" rows="4" placeholder="Condiciones de pago, alcance del servicio, validez de cotización, etc."></textarea>
+          </label>
+
+          <div class="totals-box">
+            <label class="checkline"><input type="checkbox" id="taxEnabled" checked /> Aplicar IVU</label>
+            <label>Tasa IVU %
+              <input id="taxRate" type="number" step="0.01" value="11.5" />
+            </label>
+            <div class="totals-lines">
+              <p><span>Subtotal</span><strong id="subtotalView">$0.00</strong></p>
+              <p><span>IVU</span><strong id="taxView">$0.00</strong></p>
+              <p class="grand"><span>Total</span><strong id="totalView">$0.00</strong></p>
+            </div>
+          </div>
+
+          <div class="actions sticky-actions">
+            <button type="submit" class="primary">Guardar</button>
+            <button type="button" class="ghost" id="btnPdf">PDF</button>
+            <button type="button" class="ghost" id="btnShare">Enviar</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="view" id="history">
+        <div class="card">
+          <div class="section-title">
+            <h2>Historial</h2>
+            <button class="ghost tiny" id="exportJson">Backup</button>
+          </div>
+          <input id="search" class="search" placeholder="Buscar por cliente, número o caso" />
+          <div id="historyList" class="history-list"></div>
+        </div>
+      </section>
+
+      <section class="view" id="settings">
+        <div class="card form-card">
+          <div class="section-title"><h2>Ajustes del negocio</h2></div>
+          <div class="field-grid">
+            <label>Nombre del negocio
+              <input id="bizName" />
+            </label>
+            <label>Teléfono
+              <input id="bizPhone" />
+            </label>
+            <label>Email
+              <input id="bizEmail" />
+            </label>
+            <label>Dirección
+              <input id="bizAddress" />
+            </label>
+            <label>Prefijo factura
+              <input id="invoicePrefix" />
+            </label>
+            <label>Prefijo cotización
+              <input id="quotePrefix" />
+            </label>
+          </div>
+          <label>Nota legal fija
+            <textarea id="legalNote" rows="4"></textarea>
+          </label>
+          <div class="actions two">
+            <button class="primary" id="saveSettings">Guardar ajustes</button>
+            <button class="danger" id="clearAll">Borrar todo</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
