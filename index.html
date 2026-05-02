@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#050505" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Docs Pro" />
+  <title>Docs Pro</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark" id="brandMark">DP</div>
+        <div>
+          <h1 id="appTitle">Docs Pro</h1>
+        </div>
+      </div>
+      <button class="icon" data-view-target="settings" aria-label="Ajustes">⚙</button>
+    </header>
+
+    <nav class="nav">
+      <button class="active" data-view-target="home">Inicio</button>
+      <button data-view-target="form">Nuevo</button>
+      <button data-view-target="history">Historial</button>
+      <button data-view-target="settings">Ajustes</button>
+    </nav>
+
+    <main>
+      <section id="home" class="view active">
+        <div class="metrics">
+          <article><span>Docs</span><strong id="statDocs">0</strong></article>
+          <article><span>Por cobrar</span><strong id="statPending">$0.00</strong></article>
+          <article><span>Cobrado</span><strong id="statPaid">$0.00</strong></article>
+        </div>
+        <div class="quick">
+          <button data-new="Factura">Factura</button>
+          <button data-new="Cotización">Cotización</button>
+          <button data-new="Cobro legal">Cobro legal</button>
+        </div>
+      </section>
+
+      <section id="form" class="view">
+        <form id="docForm" class="panel">
+          <div class="title-row">
+            <h2 id="formTitle">Nuevo</h2>
+            <button type="button" class="muted" id="btnReset">Limpiar</button>
+          </div>
+
+          <div class="grid">
+            <label>Tipo
+              <select id="docType" required>
+                <option>Factura</option>
+                <option>Cotización</option>
+                <option>Cobro legal</option>
+              </select>
+            </label>
+            <label>Número<input id="docNumber" required /></label>
+            <label>Fecha<input id="docDate" type="date" required /></label>
+            <label>Estatus
+              <select id="status">
+                <option>Pendiente</option>
+                <option>Enviado</option>
+                <option>Pagado</option>
+                <option>Cancelado</option>
+              </select>
+            </label>
+          </div>
+
+          <h3>Cliente</h3>
+          <div class="grid">
+            <label>Nombre<input id="clientName" required /></label>
+            <label>Teléfono<input id="clientPhone" inputmode="tel" /></label>
+            <label>Email<input id="clientEmail" type="email" /></label>
+            <label>Dirección<input id="clientAddress" /></label>
+          </div>
+
+          <h3>Referencia</h3>
+          <div class="grid">
+            <label>Caso / Ref.<input id="caseNumber" /></label>
+            <label>Agencia / Tribunal<input id="court" /></label>
+          </div>
+
+          <div class="title-row small">
+            <h3>Conceptos</h3>
+            <button type="button" class="muted" id="addItem">+ Ítem</button>
+          </div>
+          <div id="items" class="items"></div>
+
+          <label>Notas<textarea id="notes" rows="4"></textarea></label>
+
+          <div class="totals">
+            <div class="taxline">
+              <label><input type="checkbox" id="taxEnabled" checked /> IVU</label>
+              <input id="taxRate" type="number" step="0.01" value="11.5" aria-label="Tasa IVU" />
+            </div>
+            <p><span>Subtotal</span><strong id="subtotalView">$0.00</strong></p>
+            <p><span>IVU</span><strong id="taxView">$0.00</strong></p>
+            <p class="grand"><span>Total</span><strong id="totalView">$0.00</strong></p>
+          </div>
+
+          <div class="actions">
+            <button class="primary" type="submit">Guardar</button>
+            <button class="secondary" type="button" id="btnPdf">PDF</button>
+            <button class="secondary" type="button" id="btnShare">Enviar</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="history" class="view">
+        <div class="panel">
+          <div class="title-row">
+            <h2>Historial</h2>
+            <button class="muted" id="exportJson">Backup</button>
+          </div>
+          <div class="filters">
+            <input id="search" placeholder="Buscar" />
+            <select id="statusFilter">
+              <option value="">Todos</option>
+              <option>Pendiente</option>
+              <option>Enviado</option>
+              <option>Pagado</option>
+              <option>Cancelado</option>
+            </select>
+          </div>
+          <div id="historyList" class="history"></div>
+        </div>
+      </section>
+
+      <section id="settings" class="view">
+        <form id="settingsForm" class="panel">
+          <h2>Ajustes</h2>
+          <div class="grid">
+            <label>Nombre app<input id="appName" placeholder="Docs Pro" /></label>
+            <label>Iniciales<input id="appInitials" placeholder="DP" maxlength="3" /></label>
+            <label>Negocio<input id="bizName" /></label>
+            <label>Teléfono<input id="bizPhone" inputmode="tel" /></label>
+            <label>Email<input id="bizEmail" type="email" /></label>
+            <label>Dirección<input id="bizAddress" /></label>
+            <label>Prefijo factura<input id="invoicePrefix" placeholder="FAC" /></label>
+            <label>Prefijo cotización<input id="quotePrefix" placeholder="COT" /></label>
+            <label>Prefijo cobro<input id="collectionPrefix" placeholder="COB" /></label>
+          </div>
+
+          <h3>Colores</h3>
+          <div class="color-grid">
+            <label>Fondo<input id="colorBg" type="color" value="#050505" /></label>
+            <label>Tarjeta<input id="colorPanel" type="color" value="#111111" /></label>
+            <label>Principal<input id="colorAccent" type="color" value="#d6aa38" /></label>
+            <label>Texto<input id="colorText" type="color" value="#f5f5f5" /></label>
+          </div>
+
+          <label>Nota fija<textarea id="legalNote" rows="4"></textarea></label>
+          <div class="actions">
+            <button class="primary" type="submit">Guardar</button>
+            <button class="secondary" type="button" id="resetTheme">Tema base</button>
+            <button class="danger" type="button" id="clearAll">Borrar todo</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+</body>
+</html>
