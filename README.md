@@ -1,22 +1,25 @@
-# Nexus Legal Billing
+# Legal Billing Mobile
 
-App móvil simple para crear facturas, cotizaciones, documentos de emplazamiento y cobros de dinero.
+App web móvil para facturas, cotizaciones, emplazamientos y cobros de dinero.
 
-## Funciones
-- Guarda documentos localmente usando LocalStorage.
-- Genera PDF con jsPDF.
-- Permite compartir PDF desde iPhone/Android cuando el navegador lo permite.
-- Historial con búsqueda, marcar como pagada, editar y borrar.
-- Ajustes del negocio editables.
-- Lista para GitHub Pages.
+## Incluye
 
-## Publicar en GitHub Pages
-1. Crea un repositorio nuevo.
-2. Sube estos archivos al root del repo.
-3. Ve a Settings > Pages.
-4. Source: Deploy from branch.
-5. Branch: main / root.
-6. Guarda y abre el enlace generado.
+- Guardado local con `localStorage`
+- Generación de PDF con jsPDF
+- Compartir PDF desde iPhone/Android cuando el navegador lo permita
+- Historial, búsqueda y filtro por estatus
+- Marcar documentos como pagados
+- Configuración del negocio sin datos prellenados
+- Compatible con GitHub Pages
 
-## Nota
-Esta app no sustituye orientación legal. Los documentos de emplazamiento o cobro deben validarse con las reglas aplicables y autorización correspondiente.
+## Instalación en GitHub Pages
+
+1. Sube estos archivos al root del repositorio.
+2. En GitHub ve a `Settings > Pages`.
+3. Selecciona `Deploy from branch`.
+4. Branch: `main`, carpeta: `/root`.
+5. Abre el enlace generado.
+
+## Nota operacional
+
+Los datos viven en el navegador donde se use la app. Para multi-dispositivo, el upgrade natural es Firebase Auth + Firestore.

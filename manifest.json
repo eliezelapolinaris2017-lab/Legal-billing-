@@ -1,0 +1,9 @@
+{
+  "name": "Legal Billing Mobile",
+  "short_name": "Billing",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#07080c",
+  "theme_color": "#08090d",
+  "lang": "es"
+}
